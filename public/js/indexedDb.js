@@ -1,48 +1,55 @@
-export function checkForIndexedDb() {
-  if (!window.indexedDB) {
-    console.log("Your browser doesn't support a stable version of IndexedDB.");
-    return false;
+let db;
+
+const request = indexedDB.open('budget-tracker', 1);
+
+request.onupgradeneeded = function (event) {
+  const db = event.target.result;
+  db.createObjectStore('new_transtaction', { autoIncrement: true});
+};
+
+request.onsuccess = function (event) {
+  db = event.target.result;
+  if (navigator.onLine) {
+    checkDatabase();
   }
-  return true;
+};
+
+request.onerror = function (event) {
+  console.log(event.target.errorCode);
+};
+
+function saveRecord(record) {
+  const transaction = db.transaction(['new_transaction'], 'readWrite');
+  const store = transaction.objectStore('new_transaction');
+  store.add(record);
 }
 
-export function useIndexedDb(databaseName, storeName, method, object) {
-  return new Promise((resolve, reject) => {
-    const request = window.indexedDB.open(databaseName, 1);
-    let db,
-      tx,
-      store;
+function checkDatabase() {
+  const transaction = db.transaction(['new_transaction'], 'readWrite');
+  const budgetObjectStore = transaction.objectStore('new_transaction');
+  const gettAll = budgetObjectStore.gettAll();
 
-    request.onupgradeneeded = function(e) {
-      const db = request.result;
-      db.createObjectStore(storeName, { keyPath: "_id" });
-    };
 
-    request.onerror = function(e) {
-      console.log("There was an error");
-    };
+  gettAll.onsuccess = function () {
+    if (gettAll.result.lenght > 0) {
+      fetch('/api/transaction', {
+        method: 'POST',
+        body: JSON.stringify(gettAll.result),
+        headers: {
+          Accept: 'application/json, text/plain, */*',
+          'Content-Type': 'application/json',
+        },
+      })
+      .then((response) => response.json())
+      .then(() => {
 
-    request.onsuccess = function(e) {
-      db = request.result;
-      tx = db.transaction(storeName, "readwrite");
-      store = tx.objectStore(storeName);
-
-      db.onerror = function(e) {
-        console.log("error");
-      };
-      if (method === "put") {
-        store.put(object);
-      } else if (method === "get") {
-        const all = store.getAll();
-        all.onsuccess = function() {
-          resolve(all.result);
-        };
-      } else if (method === "delete") {
-        store.delete(object._id);
-      }
-      tx.oncomplete = function() {
-        db.close();
-      };
-    };
-  });
+        const transaction = db.transaction(['new_transaction'], 'readWrite');
+        const budgetObjectStore = transaction.objectStore('new_transaction');
+        budgetObjectStore.clear();
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+    }
+  };
 }
