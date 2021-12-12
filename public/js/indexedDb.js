@@ -24,7 +24,7 @@ function saveRecord(record) {
   budgetObjectStore.add(record);
 }
 
-function checkDatabase() {
+function addTransaction() {
   const transaction = db.transaction(['new_transaction'], 'readWrite');
   const budgetObjectStore = transaction.objectStore('new_transaction');
   const gettAll = budgetObjectStore.gettAll();
@@ -48,12 +48,14 @@ function checkDatabase() {
         const transaction = db.transaction(['new_transaction'], 'readWrite');
         const budgetObjectStore = transaction.objectStore('new_transaction');
         budgetObjectStore.clear();
+
+        alert("All saved transactions has been submitted!");
       })
       .catch((err) => {
         console.log(err);
       });
     }
-  }
+  };
 }
 
-window.addEventListener("online", checkDatabase);
+window.addEventListener("online", addTransaction);
