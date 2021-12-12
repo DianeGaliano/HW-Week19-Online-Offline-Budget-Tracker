@@ -20,8 +20,8 @@ request.onerror = function (event) {
 
 function saveRecord(record) {
   const transaction = db.transaction(['new_transaction'], 'readWrite');
-  const store = transaction.objectStore('new_transaction');
-  store.add(record);
+  const budgetObjectStore = transaction.objectStore('new_transaction');
+  budgetObjectStore.add(record);
 }
 
 function checkDatabase() {
@@ -41,8 +41,10 @@ function checkDatabase() {
         },
       })
       .then((response) => response.json())
-      .then(() => {
-
+      .then(serverResponse => {
+        if (serverResponse.message) {
+            throw new Error(serverResponse);
+        }
         const transaction = db.transaction(['new_transaction'], 'readWrite');
         const budgetObjectStore = transaction.objectStore('new_transaction');
         budgetObjectStore.clear();
@@ -51,5 +53,7 @@ function checkDatabase() {
         console.log(err);
       });
     }
-  };
+  }
 }
+
+window.addEventListener("online", checkDatabase);
