@@ -7,7 +7,7 @@ const FILES_TO_CACHE = [
   '/css/style.css',
   './icon/icon-192x192.png',
   './icon/icon-192x192.png',
-  'https://fonts.googleapis.com/css?family=Istok+Web|Montserrat:800&display=swap',
+  'https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css',
   'https://cdn.jsdelivr.net/npm/chart.js@2.8.0',
 ];
 
