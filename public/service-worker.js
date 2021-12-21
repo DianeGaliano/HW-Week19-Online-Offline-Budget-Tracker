@@ -7,7 +7,8 @@ const FILES_TO_CACHE = [
   '/js/indexedDB.js',
   './icon/icon-192x192.png',
   './icon/icon-192x192.png',
- 
+  'https://cdn.jsdelivr.net/npm/chart.js@2.8.0',
+  'https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css',
 ];
 
 const APP_PREFIX = 'BudgetTracker'
