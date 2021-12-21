@@ -1,6 +1,6 @@
 let db;
 
-const request = indexedDB.open('budget-tracker', 1);
+const request = indexedDB.open('budget', 1);
 
 request.onupgradeneeded = function (event) {
   const db = event.target.result;
@@ -10,7 +10,7 @@ request.onupgradeneeded = function (event) {
 request.onsuccess = function (event) {
   db = event.target.result;
   if (navigator.onLine) {
-    // checkDatabase();
+    addTransaction();
   }
 };
 
@@ -19,20 +19,20 @@ request.onerror = function (event) {
 };
 
 function saveRecord(record) {
-  const transaction = db.transaction(['new_transaction'], 'readWrite');
+  const transaction = db.transaction(['new_transaction'], 'readwrite');
   const budgetObjectStore = transaction.objectStore('new_transaction');
   budgetObjectStore.add(record);
 }
 
 function addTransaction() {
-  const transaction = db.transaction(['new_transaction'], 'readWrite');
+  const transaction = db.transaction(['new_transaction'], 'readwrite');
   const budgetObjectStore = transaction.objectStore('new_transaction');
   const gettAll = budgetObjectStore.gettAll();
 
 
   gettAll.onsuccess = function () {
     if (gettAll.result.lenght > 0) {
-      fetch('/api/transaction', {
+      fetch('/api/transaction/bulk', {
         method: 'POST',
         body: JSON.stringify(gettAll.result),
         headers: {
@@ -41,11 +41,9 @@ function addTransaction() {
         },
       })
       .then((response) => response.json())
-      .then(serverResponse => {
-        if (serverResponse.message) {
-            throw new Error(serverResponse);
-        }
-        const transaction = db.transaction(['new_transaction'], 'readWrite');
+      .then(() => {
+      
+        const transaction = db.transaction(['new_transaction'], 'readwrite');
         const budgetObjectStore = transaction.objectStore('new_transaction');
         budgetObjectStore.clear();
 
